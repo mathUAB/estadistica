@@ -1,0 +1,174 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsthm, amsmath, mathtools, amssymb}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[colorlinks,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{array}
+\usepackage[catalan]{babel}
+\usepackage[affil-it]{authblk}
+\usepackage{physics}
+\usepackage[capitalise,nameinlink]{cleveref}
+
+\newcommand{\vf}[1]{\boldsymbol{\mathrm{#1}}} % math style for vectors and matrices and vector-values functions (previously it was \*vb{#1} but this does not apply to greek letters)
+\newcommand{\RR}{\ensuremath{\mathbb{R}}}
+\newcommand{\NN}{\ensuremath{\mathbb{N}}}
+
+\newtheorem{theorem}{Teorema}
+\newtheorem{prop}{Proposition}
+\theoremstyle{plain}
+\newtheorem{exercice}{Exercise}
+\theoremstyle{remark}
+\newtheorem*{resolution}{Resolution}
+
+\DeclareMathOperator{\bias}{bias} % Bias
+\DeclareMathOperator{\MSE}{MSE} % Mean Square Error
+\DeclareMathOperator{\MLE}{MLE} % Maximum Likelihood estimator
+\newcommand{\Prob}{\ensuremath{\mathbb{P}}} % probability
+\DeclareMathOperator{\Exp}{\mathbb{E}} % expected value
+\DeclareMathOperator{\Var}{Var} % variance
+\renewcommand{\exp}[1]{\mathrm{e}^{#1}} % exponential function
+\newcommand{\iid}{i.i.d.\ } % independent and identically distributed
+\newcommand{\const}{\text{const.}}
+
+\DeclareDocumentCommand\partialderivative{ s o m g d() }{ 
+          % Total derivative
+          % s: star for \flatfrac flat derivative
+          % o: optional n for nth derivative
+          % m: mandatory (x in df/dx)
+          % g: optional (f in df/dx)
+          % d: long-form d/dx(...)
+            \IfBooleanTF{#1}
+            {\let\fractype\flatfrac}
+            {\let\fractype\frac}
+            \IfNoValueTF{#4}
+            {
+                \IfNoValueTF{#5}
+                {\fractype{\partial \IfNoValueTF{#2}{}{^{#2}}}{\partial #3\IfNoValueTF{#2}{}{^{#2}}}}
+                {\fractype{\partial \IfNoValueTF{#2}{}{^{#2}}}{\partial #3\IfNoValueTF{#2}{}{^{#2}}} \argopen(#5\argclose)}
+            }
+            {\fractype{\partial \IfNoValueTF{#2}{}{^{#2}} #3}{\partial #4\IfNoValueTF{#2}{}{^{#2}}}\IfValueT{#5}{(#5)}}
+        } % partial differential operator
+
+\title{\bfseries\Large Second assessment}
+
+\author{Víctor Ballester Ribó\endgraf NIU: 1570866}
+\date{\parbox{\linewidth}{\centering
+  Statistics\endgraf
+  Degree in Mathematics\endgraf
+  Universitat Autònoma de Barcelona\endgraf
+  May 2022}}
+
+\setlength{\parindent}{0pt}
+\begin{document}
+\selectlanguage{catalan}
+\maketitle
+\setcounter{exercice}{9}
+\begin{exercice}
+  Let $X_1,\ldots X_n\overset{\text{i.i.d.}}{\sim}N(\mu_X,{\sigma_X}^2)$, and $Y_1,\ldots Y_m\overset{\text{i.i.d.}}{\sim}N(\mu_Y,{\sigma_Y}^2)$. We are interested in testing $$\text{H}_0:\mu_X=\mu_Y\quad\text{versus}\quad\text{H}_0:\mu_X\ne\mu_Y$$ with the assumption that ${\sigma_X}^2={\sigma_Y}^2=:\sigma^2$.
+  \begin{enumerate}
+    \item Derive the LRT for these hypotheses. Show that the LRT can be based on the
+          statistic:
+          \begin{equation}
+            T=\frac{\overline{X}-\overline{Y}}{\sqrt{{S_p}^2\left(\frac{1}{n}+\frac{1}{m}\right)}}
+          \end{equation}
+          where $${S_p}^2=\frac{1}{n+m-2}\left(\sum_{i=1}^n{(X_i-\overline{X})}^2+\sum_{j=1}^m{(Y_j-\overline{Y})}^2\right)$$ is the so-called pooled variance estimate.
+          \begin{resolution}
+            First of all, to simplify the notation, let's denote $\vf{X}:=(X_1,\ldots,X_n,Y_1,\ldots,Y_m)$ and $\vf\theta:=(\mu_X,\mu_Y,\sigma^2)$. Let's write first the likelihood $L(\vf\theta;\vf{X})$ of the experiment. We have that:
+            $$L(\vf\theta;\vf{X})=\prod_{i=1}^n\frac{1}{\sqrt{2\pi\sigma^2}}\exp{-\frac{{(X_i-\mu_X)}^2}{2\sigma^2}}\prod_{j=1}^m\frac{1}{\sqrt{2\pi\sigma^2}}\exp{-\frac{{(Y_j-\mu_Y)}^2}{2\sigma^2}}={(2\pi\sigma^2)}^{-\frac{n+m}{2}}\exp{-\frac{1}{2\sigma^2}\left[\sum_{i=1}^n{(X_i-\mu_X)}^2+\sum_{j=1}^m{(Y_j-\mu_Y)}^2\right]}$$
+            since all the random variables $X_1,\ldots,X_n,Y_1,\ldots,Y_m$ are pairwise independent. Under $\text{H}_0$ we have a sample $X_1,\ldots,X_n,Y_1,\ldots,Y_m$ of size $n+m$ from a normal distribution $N(\mu_X,{\sigma}^2)$. But we already now that the MLE $\hat\mu_0$ for $\mu_X$ in this case is: $$\hat\mu_0=\frac{\sum_{i=1}^nX_i+\sum_{j=1}^mY_j}{n+m}=\frac{n\overline{X}+m\overline{Y}}{n+m}$$
+            Under $\text{H}_1$, notice that due to the independence of the samples the two MLEs $\hat\mu_X$ and $\hat\mu_Y$ of $\mu_X$ and $\mu_Y$, respectively, must be the usuals ones: $$\hat\mu_X=\frac{\sum_{i=1}^nX_i}{n}=\overline{X}\quad\text{and}\quad\hat\mu_Y=\frac{\sum_{j=1}^mY_i}{m}=\overline{Y}$$
+            Finally, since $\sigma^2$ is unknown, we must find the MLE ${\hat\sigma}^2$ of $\sigma^2$. Let's calculate the log-likelihood $\ell(\vf\theta;\vf{X})$ and $\pdv{\ell}{\sigma^2}(\vf\theta;\vf{X})$. We have that:
+            \begin{align*}
+              \ell(\vf\theta;\vf{X})=\log L(\vf\theta;\vf{X}) & =-\frac{n+m}{2}\log(2\pi)-\frac{n+m}{2}\log\sigma^2-\frac{\sum_{i=1}^n{(X_i-\mu_X)}^2+\sum_{j=1}^m{(Y_j-\mu_Y)}^2}{2\sigma^2} \\
+              \pdv{\ell}{\sigma^2}(\vf\theta;\vf{X})          & =-\frac{n+m}{2\sigma^2}+\frac{\sum_{i=1}^n{(X_i-\mu_X)}^2+\sum_{j=1}^m{(Y_j-\mu_Y)}^2}{2\sigma^4}
+            \end{align*}
+            Equating the last equation to zero, we get:
+            \begin{align*}
+              \pdv{\ell}{\sigma^2}(\vf\theta;\vf{X})=0 & \iff -\frac{n+m}{2\sigma^2}+\frac{\sum_{i=1}^n{(X_i-\mu_X)}^2+\sum_{j=1}^m{(Y_j-\mu_Y)}^2}{2\sigma^4}= 0 \\
+                                                       & \iff  -(n+m)+\frac{\sum_{i=1}^n{(X_i-\mu_X)}^2+\sum_{j=1}^m{(Y_j-\mu_Y)}^2}{\sigma^2}= 0                 \\
+                                                       & \iff \sigma^2=\frac{\sum_{i=1}^n{(X_i-\mu_X)}^2+\sum_{j=1}^m{(Y_j-\mu_Y)}^2}{n+m}=:{\hat\sigma}^2
+            \end{align*}
+            Let's verify now that $\ell$ has a maximum attained at $\sigma^2={\hat\sigma}^2$:
+            \begin{align*}
+              \pdv[2]{\ell}{(\sigma^2)}(\vf\theta;\vf{X})\bigg|_{\sigma^2={\hat\sigma}^2} & =\frac{n+m}{2\sigma^4}-\frac{\sum_{i=1}^n{(X_i-\mu_X)}^2+\sum_{j=1}^m{(Y_j-\mu_Y)}^2}{\sigma^6}\bigg|_{\sigma^2={\hat\sigma}^2} \\
+                                                                                          & =\frac{n+m}{2{\hat\sigma}^4}-\frac{n+m}{{\hat\sigma}^4}                                                                         \\
+                                                                                          & =-\frac{n+m}{2{\hat\sigma}^4}                                                                                                   \\
+                                                                                          & <0
+            \end{align*}
+            because $\frac{n+m}{2{\hat\sigma}^4}$ is always positive. Hence ${\hat\sigma}^2$ is definitely the MLE of $\sigma^2$. But we have to substitute the MLEs of $\mu_X$ and $\mu_Y$, so under $\text{H}_0$, ${\hat\sigma_0}^2:=\hat\sigma^2$ is: $${\hat\sigma_0}^2=\frac{\sum_{i=1}^n{(X_i-\hat\mu_0)}^2+\sum_{j=1}^m{(Y_j-\hat\mu_0)}^2}{n+m}$$ And in general (among all the parametric space of $\mu_X$ and $\mu_Y$) we have: $${\hat\sigma_1}^2=\frac{\sum_{i=1}^n{(X_i-\hat\mu_X)}^2+\sum_{j=1}^m{(Y_j-\hat\mu_Y)}^2}{n+m}$$
+            Putting all of this together on the LRT statistic $\displaystyle \lambda:=\frac{\sup\{L(\theta,\vf{X}):\mu_X=\mu_Y\in\RR,\sigma^2\in\RR_{\geq 0}\}}{\sup\{L(\theta,\vf{X}):\mu_X,\mu_Y\in\RR,\sigma^2\in\RR_{\geq 0}\}}$, we have:
+            \begin{align}
+              \nonumber \lambda & =\frac{\sup\{L(\vf\theta;\vf{X}):\mu_X=\mu_Y\in\RR,\sigma^2\in\RR_{\geq 0}\}}{\sup\{L(\vf\theta;\vf{X}):\mu_X,\mu_Y\in\RR,\sigma^2\in\RR_{\geq 0}\}}                                                                                                                                                                     \\
+              \nonumber         & =\frac{{(2\pi{\hat\sigma_0}^2)}^{-\frac{n+m}{2}}\exp{-\frac{1}{2{\hat\sigma_0}^2}\left[\sum_{i=1}^n{(X_i-\hat\mu_0)}^2+\sum_{j=1}^m{(Y_j-\hat\mu_0)}^2\right]}}{{(2\pi{\hat\sigma_1}^2)}^{-\frac{n+m}{2}}\exp{-\frac{1}{2{\hat\sigma_1}^2}\left[\sum_{i=1}^n{(X_i-\hat\mu_X)}^2+\sum_{j=1}^m{(Y_j-\hat\mu_Y)}^2\right]}} \\
+              \nonumber         & = \left(\frac{{\hat\sigma_0}^2}{{\hat\sigma_1}^2}\right)^{-\frac{n+m}{2}}\cdot\frac{\exp{-\frac{n+m}{2}}}{\exp{-\frac{n+m}{2}}}                                                                                                                                                                                          \\
+              \label{lambda}    & = \left(\frac{\sum_{i=1}^n{(X_i-\hat\mu_0)}^2+\sum_{j=1}^m{(Y_j-\hat\mu_0)}^2}{\sum_{i=1}^n{(X_i-\hat\mu_X)}^2+\sum_{j=1}^m{(Y_j-\hat\mu_Y)}^2}\right)^{-\frac{n+m}{2}}
+            \end{align}
+            Now, note that:
+            \begin{align*}
+              \sum_{i=1}^n{(X_i-\hat\mu_0)}^2 & =\sum_{i=1}^n{(X_i-\overline{X}+\overline{X}-\hat\mu_0)}^2                                                                           \\
+                                              & =\sum_{i=1}^n{(X_i-\overline{X})}^2+2(\overline{X}-\hat\mu_0)\sum_{i=1}^n(X_i-\overline{X})+\sum_{i=1}^n{(\overline{X}-\hat\mu_0)}^2 \\
+                                              & =\sum_{i=1}^n{(X_i-\overline{X})}^2+n{(\overline{X}-\hat\mu_0)}^2
+            \end{align*}
+            because $\sum_{i=1}^n(X_i-\overline{X})=\sum_{i=1}^nX_i-n\overline{X}=0$. Similarly, we have that $$\sum_{j=1}^m{(Y_i-\hat\mu_0)}^2=\sum_{j=1}^m{(Y_i-\overline{Y})}^2+m{(\overline{Y}-\hat\mu_0)}^2$$
+            But $\hat\mu_0=\frac{n\overline{X}+m\overline{Y}}{n+m}$, so
+            \begin{align*}
+              \overline{X}-\hat\mu_0 & =\overline{X}-\frac{n\overline{X}+m\overline{Y}}{n+m}=\frac{n\overline{X}+ m\overline{X}-n\overline{X}-m\overline{Y}}{n+m}=m\frac{\overline{X}-\overline{Y}}{n+m} \\
+              \overline{Y}-\hat\mu_0 & =\overline{Y}-\frac{n\overline{X}+m\overline{Y}}{n+m}=\frac{n\overline{Y}+ m\overline{Y}-n\overline{X}-m\overline{Y}}{n+m}=n\frac{\overline{Y}-\overline{X}}{n+m}
+            \end{align*}
+            and the numerator of the fraction in \cref{lambda} becomes:
+            \begin{align*}
+              \sum_{i=1}^n{(X_i-\hat\mu_0)}^2+\sum_{j=1}^m{(Y_j-\hat\mu_0)}^2 & =\sum_{i=1}^n{(X_i-\overline{X})}^2+\sum_{j=1}^m{(Y_i-\overline{Y})}^2+n\cdot m^2\frac{{(\overline{X}-\overline{Y})}^2}{{(n+m)}^2}+m\cdot n^2\frac{{(\overline{Y}-\overline{X})}^2}{{(n+m)}^2} \\
+                                                                              & =\sum_{i=1}^n{(X_i-\overline{X})}^2+\sum_{j=1}^m{(Y_i-\overline{Y})}^2+\frac{nm}{n+m}{(\overline{X}-\overline{Y})}^2
+            \end{align*}
+            So, recalling that $\hat\mu_X=\overline{X}$ and $\hat\mu_Y=\overline{Y}$, $\lambda$ becomes:
+            \begin{align*}
+              \lambda & =\left(\frac{\sum_{i=1}^n{(X_i-\overline{X})}^2+\sum_{j=1}^m{(Y_i-\overline{Y})}^2+\frac{nm}{n+m}{(\overline{X}-\overline{Y})}^2}{\sum_{i=1}^n{(X_i-\overline{X})}^2+\sum_{j=1}^m{(Y_j-\overline{Y})}^2}\right)^{-\frac{n+m}{2}} \\
+                      & =\left(1+\frac{\frac{nm}{n+m}{(\overline{X}-\overline{Y})}^2}{\frac{n+m-2}{n+m-2}\left[\sum_{i=1}^n{(X_i-\hat\mu_X)}^2+\sum_{j=1}^m{(Y_j-\hat\mu_Y)}^2\right]}\right)^{-\frac{n+m}{2}}                                           \\
+                      & =\left(1+\frac{\frac{nm}{n+m}{(\overline{X}-\overline{Y})}^2}{(n+m-2){S_p}^2}\right)^{-\frac{n+m}{2}}                                                                                                                            \\
+                      & =\left(1+\frac{{(\overline{X}-\overline{Y})}^2}{(\frac{1}{n}+\frac{1}{m})(n+m-2){S_p}^2}\right)^{-\frac{n+m}{2}}
+              \\
+            \end{align*}
+            We will reject $\text{H}_0$ when $\lambda<\const$ So:
+            \begin{align*}
+              \lambda<\const & \iff \left(1+\frac{{(\overline{X}-\overline{Y})}^2}{(\frac{1}{n}+\frac{1}{m})(n+m-2){S_p}^2}\right)^{-\frac{n+m}{2}}<\const \\
+                             & \iff 1+\frac{{(\overline{X}-\overline{Y})}^2}{(\frac{1}{n}+\frac{1}{m})(n+m-2){S_p}^2}>\const                               \\
+                             & \iff \frac{{(\overline{X}-\overline{Y})}^2}{(\frac{1}{n}+\frac{1}{m}){S_p}^2}>\const                                        \\
+                             & \iff T^2>\const                                                                                                             \\
+                             & \iff \abs{T}>\const
+            \end{align*}
+            because it goes without saying that $n+m-2>0$.
+          \end{resolution}
+    \item Show that, under $\text{H}_0$, $T\sim t_{n+m-2}$ (this is know as the two-sample t-test).
+          \begin{resolution}
+            Under $\text{H}_0$ we know that $\overline{X}\sim N(\mu_X,\sigma^2/n)$ and $\overline{Y}\sim N(\mu_X,\sigma^2/m)$. But since we know that $-\overline{Y}\sim N(-\mu_X,\sigma^2/m)$, we have that $\overline{X}-\overline{Y}\sim N(0,\sigma^2/n+\sigma^2/m)=N(0,\sigma^2(\frac{1}{n}+\frac{1}{m}))$ and so: $$\frac{\overline{X}-\overline{Y}}{\sqrt{\sigma^2\left(\frac{1}{n}+\frac{1}{m}\right)}}\sim N(0,1)$$
+            On the other hand:
+            $${S_p}^2=\frac{1}{n+m-2}\left(\sum_{i=1}^n{(X_i-\overline{X})}^2+\sum_{j=1}^m{(Y_j-\overline{Y})}^2\right)=\frac{(n-1){S_x}^2+(m-1){S_y}^2}{n+m-2}$$ where ${S_x}^2$ and ${S_y}^2$ are the respective sample variances. By Fisher's theorem we know that ${S_x}^2\sim\frac{\sigma^2}{n-1}{\chi_{n-1}}^2$ and ${S_y}^2\sim\frac{\sigma^2}{m-1}{\chi_{m-1}}^2$. So, recalling that ${\chi_a}^2+{\chi_b}^2\sim{\chi_{a+b}}^2$ we have that:
+            \begin{align*}
+              {S_p}^2=\frac{(n-1){S_x}^2+(m-1){S_y}^2}{n+m-2} & \sim\frac{(n-1)\frac{\sigma^2}{n-1}{\chi_{n-1}}^2+(m-1)\frac{\sigma^2}{m-1}{\chi_{m-1}}^2}{n+m-2} \\
+                                                              & \sim\frac{\sigma^2{\chi_{n-1}}^2+\sigma^2{\chi_{m-1}}^2}{n+m-2}                                   \\
+                                                              & \sim\frac{\sigma^2}{n+m-2}{\chi_{n+m-2}}^2
+            \end{align*}
+            Finally:
+            $$T=\frac{\overline{X}-\overline{Y}}{\sqrt{{S_p}^2\left(\frac{1}{n}+\frac{1}{m}\right)}}=\frac{\frac{\overline{X}-\overline{Y}}{\sqrt{\sigma^2\left(\frac{1}{n}+\frac{1}{m}\right)}}}{\sqrt{\frac{{S_p}^2}{\sigma^2}}}\sim\frac{N(0,1)}{\sqrt{\frac{{\chi_{n+m-2}}^2}{n+m-2}}}=t_{n+m-2}$$
+            which follows from the definition of the Stundent's $t$-distribution (quotient of a standard normal distribution and the square root of a chi-square random variable divided by its degrees of freedom).
+          \end{resolution}
+    \item Samples of wood were obtained from the core and periphery of a certain Byzantine church. The date of the wood was determined, giving the following data:
+          \begin{table}[ht]
+            \centering
+            \begin{tabular}{|l||c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c@{\hspace{5pt}}c|}
+              \hline
+              Core      & 1294 & 1279 & 1274 & 1264 & 1263 & 1254 & 1251 & 1251 & 1248 & 1240 & 1232 & 1220 & 1218 & 1210 \\
+              \hline
+              Periphery & 1284 & 1272 & 1256 & 1254 & 1242 & 1274 & 1264 & 1256 & 1250 &      &      &      &      &      \\
+              \hline
+            \end{tabular}
+          \end{table}\\
+          Use the two-sample t-test to determine if the mean age of the core is the same as the mean age of the periphery.
+          \begin{resolution}
+            We will do the problem with a level of significance $\alpha=0.05$. We assign the letter $X$ to the data of Core and the letter $Y$ to the Periphery's one. In this case, we have $n=14$, $m=9$, $\overline{X}=1249.857$, $\overline{Y}=1261.333$ and ${S_p}^2=433.129$. Therefore, the observed value $t_0$ of $T$ is: $t_0=-1.29066$. The $p$-value of the test will be given by:
+            $$p:=\Prob(\abs{T}\geq\abs{t_0})=\Prob(T\geq\abs{t_0})+\Prob(T\leq -\abs{t_0})=2\Prob(T\geq\abs{t_0})=0.2109$$
+            Since $p>\alpha=0.05$, we can't reject $\text{H}_0$.
+          \end{resolution}
+  \end{enumerate}
+\end{exercice}
+\end{document}

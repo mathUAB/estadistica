@@ -1,0 +1,141 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsthm, amsmath, mathtools, amssymb}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[colorlinks,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{array}
+\usepackage[catalan]{babel}
+\usepackage[affil-it]{authblk}
+\usepackage{physics}
+
+\newcommand{\vf}[1]{\boldsymbol{\mathrm{#1}}} % math style for vectors and matrices and vector-values functions (previously it was \*vb{#1} but this does not apply to greek letters)
+\newcommand{\RR}{\ensuremath{\mathbb{R}}}
+\newcommand{\NN}{\ensuremath{\mathbb{N}}}
+
+\newtheorem{theorem}{Teorema}
+\newtheorem{prop}{Proposition}
+\theoremstyle{plain}
+\newtheorem{exercice}{Exercise}
+\theoremstyle{remark}
+\newtheorem*{resolution}{Resolution}
+
+\DeclareMathOperator{\bias}{bias} % Bias
+\DeclareMathOperator{\MSE}{MSE} % Mean Square Error
+\DeclareMathOperator{\MLE}{MLE} % Maximum Likelihood estimator
+\newcommand{\Prob}{\ensuremath{\mathbb{P}}} % probability
+\DeclareMathOperator{\Exp}{\mathbb{E}} % expected value
+\DeclareMathOperator{\Var}{Var} % variance
+\renewcommand{\exp}[1]{\mathrm{e}^{#1}} % exponential function
+\newcommand{\iid}{i.i.d.\ } % independent and identically distributed
+
+\DeclareDocumentCommand\partialderivative{ s o m g d() }{ 
+          % Total derivative
+          % s: star for \flatfrac flat derivative
+          % o: optional n for nth derivative
+          % m: mandatory (x in df/dx)
+          % g: optional (f in df/dx)
+          % d: long-form d/dx(...)
+            \IfBooleanTF{#1}
+            {\let\fractype\flatfrac}
+            {\let\fractype\frac}
+            \IfNoValueTF{#4}
+            {
+                \IfNoValueTF{#5}
+                {\fractype{\partial \IfNoValueTF{#2}{}{^{#2}}}{\partial #3\IfNoValueTF{#2}{}{^{#2}}}}
+                {\fractype{\partial \IfNoValueTF{#2}{}{^{#2}}}{\partial #3\IfNoValueTF{#2}{}{^{#2}}} \argopen(#5\argclose)}
+            }
+            {\fractype{\partial \IfNoValueTF{#2}{}{^{#2}} #3}{\partial #4\IfNoValueTF{#2}{}{^{#2}}}\IfValueT{#5}{(#5)}}
+        } % partial differential operator
+
+\title{\bfseries\Large First assessment}
+
+\author{Víctor Ballester Ribó\endgraf NIU: 1570866}
+\date{\parbox{\linewidth}{\centering
+  Statistics\endgraf
+  Degree in Mathematics\endgraf
+  Universitat Autònoma de Barcelona\endgraf
+  March 2022}}
+
+\setlength{\parindent}{0pt}
+\begin{document}
+\selectlanguage{catalan}
+\maketitle
+\begin{exercice}
+  Let $X_1,\ldots X_n\overset{\text{i.i.d.}}{\sim}\text{Exp}(\lambda)$, $\lambda>0$ (rate) and $n\in\NN$ with $n\geq 2$. Consider the following estimators for the parameter $\mu=\frac{1}{\lambda}$: $$\hat{\mu}_1=n\min(X_1,\ldots,X_n)\qquad\hat{\mu}_2=\frac{1}{n-1}\sum_{i=1}^nX_i$$
+  \begin{enumerate}
+    \item Compute the expectation of $\hat{\mu}_1$ and $\hat{\mu}_2$. Are the estimators unbiased for $\mu$? Justify your answer. [1.5 points]
+          \begin{resolution}
+            Let's determine first the distribution of $\hat\mu_1$. Given $t\leq 0$, clearly we have $\Prob(\hat\mu_1\leq t)=0$. Given $t> 0$, we have:
+            \begin{align*}
+              \Prob(\hat\mu_1\leq t) & =\Prob\left(\min(X_1,\ldots,X_n)\leq\frac{t}{n}\right)                       \\
+                                     & = 1-\Prob\left(\min(X_1,\ldots,X_n)>\frac{t}{n}\right)                       \\
+                                     & = 1-\Prob\left(X_1>\frac{t}{n}\right)\cdots\Prob\left(X_n>\frac{t}{n}\right) \\
+                                     & = 1-{\Prob\left(X_1>\frac{t}{n}\right)}^n                                    \\
+                                     & = 1-{\left(\int_{\frac{t}{n}}^\infty \lambda\exp{-\lambda x}\dd{x}\right)}^n \\
+                                     & = 1-{\left(-\exp{-\lambda x}\Big|_{\frac{t}{n}}^\infty\right)}^n             \\
+                                     & = 1-{\left(\exp{-\frac{\lambda t}{n}}\right)}^n                              \\
+                                     & = 1-\exp{-\lambda t}
+            \end{align*}
+            where in the forth equality we have used that the random variables are \iid Note that the result obtained is precisely the cdf of a $\text{Exp}(\lambda)$. Hence, $\hat\mu_1\sim\text{Exp}(\lambda)$ and therefore $\Exp(\hat\mu_1)=\frac{1}{\lambda}=\mu$. Regarding the estimator $\hat\mu_2$, we have: $$\Exp(\hat\mu_2)=\Exp\left(\frac{1}{n-1}\sum_{i=1}^nX_i\right)=\frac{1}{n-1}\sum_{i=1}^n\Exp(X_i)=\frac{1}{n-1}\sum_{i=1}^n\frac{1}{\lambda}=\frac{n}{n-1}\cdot\frac{1}{\lambda}=\frac{n}{n-1}\mu$$
+            Since $\bias(\hat\mu_1)=\Exp(\hat\mu_1)-\mu=\mu-\mu=0$, $\hat\mu_1$ is unbiased. On the other hand: $$\bias(\hat\mu_2)=\Exp(\hat\mu_2)-\mu=\frac{n}{n-1}\mu-\mu=\frac{1}{n-1}\mu\ne0$$ Thus, $\hat\mu_2$ is biased.
+          \end{resolution}
+    \item Show that $\MSE(\hat{\mu}_1)=\mu^2$ and $\MSE(\hat{\mu}_2)=\frac{n+1}{{(n-1)}^2}\mu^2$. [2 points]
+          \begin{resolution}
+            We know that given an estimator $\hat\theta$ of a parameter $\theta$, the $\MSE(\hat\theta)$ is given by: $$\MSE(\hat\theta)=\Var(\hat\theta)+{(\bias(\hat\theta))}^2$$
+            Let's compute the variance of $\hat\mu_1$ and $\hat\mu_2$. For the first case, we already know that $\Var(\hat\mu_1)=\frac{1}{\lambda^2}=\mu^2$ because $\hat\mu_1\sim\text{Exp}(\lambda)$. For the second case, using the fact that $X_1,\ldots,X_n$ are \text{i.i.d.}, we have:
+            $$\Var(\hat\mu_2)=\Var\left(\frac{1}{n-1}\sum_{i=1}^nX_i\right)=\frac{1}{{(n-1)}^2}\sum_{i=1}^n\Var(X_i)=\frac{1}{{(n-1)}^2}\sum_{i=1}^n\frac{1}{\lambda^2}=\frac{n}{{(n-1)}^2}\cdot\frac{1}{\lambda^2}=\frac{n}{{(n-1)}^2}\mu^2$$
+            From here the desired result follows immediately:
+            \begin{align*}
+              \MSE(\hat\mu_1) & =\Var(\hat\mu_1)+{(\bias(\hat\mu_1))}^2=\mu^2+0=\mu^2                                                                         \\
+              \MSE(\hat\mu_2) & =\Var(\hat\mu_2)+{(\bias(\hat\mu_2))}^2=\frac{n}{{(n-1)}^2}\mu^2+{\left(\frac{1}{n-1}\mu\right)}^2=\frac{n+1}{{(n-1)}^2}\mu^2
+            \end{align*}
+          \end{resolution}
+    \item Are $\hat{\mu}_1$ and $\hat{\mu}_2$ consistent? Justify your answer. [0.5 points]
+          \begin{resolution}
+            Recall that an estimator estimator $\hat\theta_n$ of a parameter $\theta$ is consistent if $\displaystyle\lim_{n\to\infty}\MSE(\hat\theta_n)=0$. So in our case, we have:
+            \begin{align*}
+              \lim_{n\to\infty}\MSE(\hat\mu_1) & =\lim_{n\to\infty}\mu^2=\mu^2\ne 0             \\
+              \lim_{n\to\infty}\MSE(\hat\mu_2) & =\lim_{n\to\infty}\frac{n+1}{{(n-1)}^2}\mu^2=0
+            \end{align*}
+            Thus, $\hat\mu_2$ is consistent but $\hat\mu_1$ isn't.
+          \end{resolution}
+  \end{enumerate}
+\end{exercice}
+\begin{exercice}
+  For $n\in\NN$ let $X_1,\ldots,X_n$ be \iid random variables with density function: $$f_X(x;\alpha)=\frac{\alpha}{x^2}\exp{-\frac{\alpha}{x}}\qquad x>0,\alpha>0$$
+  In the following, $x_1,\ldots,x_n$ denotes a sample from these random variables.
+  \begin{enumerate}
+    \item Find the maximum likelihood estimator ($\MLE$), $\hat{\alpha}$, for $\alpha$. [2.5 points]
+          \begin{resolution}
+            Let $\vf{X}:=(X_1,\ldots,X_n)$ and $\vf{x}:=(x_1,\ldots,x_n)$. We know that (in the continuous case) the likelihood function $L(\alpha;\vf{x})$ is joint pdf of $X_1,\ldots,X_n$ evaluated at $\vf{x}$. Since $X_1,\ldots,X_n$ are \iid random variables we will have: $$L(\alpha;\vf{x})=f_{\vf{X}}(\vf{x};\alpha)=\prod_{i=1}^nf_{X_i}(x_i;\alpha)=\prod_{i=1}^n\frac{\alpha}{{x_i}^2}\exp{-\frac{\alpha}{x_i}}=\frac{\alpha^n}{{\left(x_1\cdots x_n\right)}^2}\exp{-\alpha\sum_{i=1}^n\frac{1}{x_i}}$$
+            Thus, the log-likelihood function is:
+            $$\ell(\alpha;\vf{x})=\log L(\alpha;\vf{x})=n\log\alpha-2\log(x_1\cdots x_n)-\alpha\sum_{i=1}^n\frac{1}{x_i}$$
+            And the score function is:
+            \begin{equation}\label{score}
+              S(\alpha;\vf{x})=\pdv{\ell}{\alpha}(\alpha;\vf{x})=\frac{n}{\alpha}-\sum_{i=1}^n\frac{1}{x_i}
+            \end{equation}
+            In order to find $\hat\alpha$, we have to find the zero (if any) of $S(\alpha;\vf{x})$. So we obtain an estimation for $\alpha$ isolating $\alpha$ from equation \eqref{score} equated to 0:
+            $$S(\alpha;\vf{x})=0\iff\frac{n}{\alpha}-\sum_{i=1}^n\frac{1}{x_i}=0\iff\alpha=\frac{n}{\sum_{i=1}^n\frac{1}{x_i}}$$
+            Since $\pdv{S}{\alpha}(\alpha;\vf{x})=-\frac{n}{\alpha^2}<0$ $\forall \alpha>0$ we have that the value found above is indeed a maximum. Hence, the MLE $\hat\alpha$ is: $$\hat\alpha=\frac{n}{\sum_{i=1}^n\frac{1}{X_i}}$$
+          \end{resolution}
+    \item Compute the asymptotic distribution of $\hat\alpha$. [2 points]
+          \begin{resolution}
+            Let's compute first the observed information $J$:
+            $$J(\alpha;\vf{X})=-\pdv[2]{\ell}{\alpha}(\alpha;\vf{X})=\frac{n}{\alpha^2}$$
+            Thus, the Fisher information is: $$I(\alpha)=\Exp(J(\alpha;\vf{X}))=\Exp\left(\frac{n}{\alpha^2}\right)=\frac{n}{\alpha^2}$$
+            But we know that the asymptotic distribution of $\hat\alpha$ is normal with expectation $\alpha$ and variance ${I(\alpha)}^{-1}$. So finally we get:
+            $$\hat\alpha\overset{\text{a}}{\sim}N\left(\alpha,\frac{\alpha^2}{n}\right)$$
+          \end{resolution}
+    \item The median $\eta$ of the distribution specified above is given as $\eta=\alpha/(\log 2)$. Obtain the $\MLE$, $\hat{\eta}$, for $\eta$. [0.5 points]
+          \begin{resolution}
+            Let $g(x)=\frac{x}{\log 2}$. We know that $\eta=g(\alpha)$, so because of the invariance of the MLE under transformations, we have:
+            $$\hat\eta=g(\hat\alpha)=\frac{\hat\alpha}{\log 2}=\frac{1}{\log 2}\cdot\frac{n}{\sum_{i=1}^n\frac{1}{X_i}}$$
+          \end{resolution}
+    \item Use the univariate Delta method to obtain the asymptotic distribution of the estimator $\hat\eta$. [1 points]
+          \begin{resolution}
+            Delta method tell us that the asymptotic expectation of $\hat\eta$ is given by $\eta=g(\alpha)$ and that the asymptotic variance of $\hat\eta$ is given by $\Var(\hat\eta)=\frac{{g'(\alpha)}^2}{I(\alpha)}$. We have that $g'(x)=\frac{1}{\log 2}$, and so at the limit we will have:
+            $$\hat\eta\overset{\text{a}}{\sim}N\left(g(\alpha),\frac{{g'(\alpha)}^2}{I(\alpha)}\right)=N\left(\frac{\alpha}{\log 2},\frac{\alpha^2}{n{(\log 2)}^2}\right)$$
+          \end{resolution}
+  \end{enumerate}
+\end{exercice}
+\end{document}
